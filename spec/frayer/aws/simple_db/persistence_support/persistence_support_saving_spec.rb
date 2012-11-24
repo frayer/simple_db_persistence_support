@@ -13,9 +13,10 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
       attribute :int_value_1, Integer, { padding: 16 }
       attribute :int_value_2, Integer, { padding: 8 }
       attribute :int_value_3, Integer
-      has_strings :str_value_2, :str_value_3
-      has_ints    :int_value_4, :int_value_5
-      has_dates   :date_1, :date_2
+      has_strings  :str_value_2, :str_value_3
+      has_ints     :int_value_4, :int_value_5
+      has_dates    :date_1, :date_2
+      has_booleans :bool_1, :bool_2
     end
 
     @mock_dao = MockClass.new
@@ -187,6 +188,19 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
 
     domain.should_receive(:items).and_return(items)
     items.should_receive(:create).with(@uuid_matcher, {date_1: expected_iso_8601_date_1, date_2: expected_iso_8601_date_2, date_created: be, date_updated: be})
+
+    @mock_dao.save_to_simpledb(domain)
+  end
+
+  it "allows Boolean attributes defined with 'has_booleans' to be persisted" do
+    @mock_dao.bool_1 = true
+    @mock_dao.bool_2 = false
+
+    domain = mock()
+    items = mock()
+
+    domain.should_receive(:items) { items }
+    items.should_receive(:create).with(@uuid_matcher, { bool_1: 'true', bool_2: 'false' , date_created: be, date_updated: be })
 
     @mock_dao.save_to_simpledb(domain)
   end

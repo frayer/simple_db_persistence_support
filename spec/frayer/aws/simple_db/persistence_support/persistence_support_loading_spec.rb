@@ -16,9 +16,10 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       attribute :int_value_2, Integer, { padding: 8 }
       attribute :int_value_3, Integer
       attribute :time_value_1, Time
-      has_strings :str_value_2, :str_value_3
-      has_ints    :int_value_4, :int_value_5
-      has_dates   :time_value_2, :time_value_3
+      has_strings  :str_value_2, :str_value_3
+      has_ints     :int_value_4, :int_value_5
+      has_dates    :time_value_2, :time_value_3
+      has_booleans :bool_1, :bool_2
     end
 
     class MockSimpleDBAttributeCollection
@@ -63,7 +64,9 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       stub(name: 'undeclared_value', values: [ "This shouldn't be assigned when loaded."]),
       stub(name: 'time_value_1', values: [ '2012-11-13T05:31:56+00:00' ]),
       stub(name: 'time_value_2', values: [ '2012-11-14T06:31:56+00:00' ]),
-      stub(name: 'time_value_3', values: [ '2012-11-15T07:31:56+00:00' ])
+      stub(name: 'time_value_3', values: [ '2012-11-15T07:31:56+00:00' ]),
+      stub(name: 'bool_1', values: [ 'true' ]),
+      stub(name: 'bool_2', values: [ 'false' ])
     ]
     @mock_item = mock('mock_item')
     @mock_item.stub(:name) { 'mock item name' }
@@ -113,5 +116,11 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
     @object.load_from_item(@mock_item)
     @object.int_value_4.should eq(-9223372036854775808)
     @object.int_value_5.should eq(9223372036854775808)
+  end
+
+  it "populates String attributes as Time types when that metadata is present in the loading class" do
+    @object.load_from_item(@mock_item)
+    @object.bool_1.should eq(true)
+    @object.bool_2.should eq(false)
   end
 end

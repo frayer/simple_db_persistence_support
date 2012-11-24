@@ -5,6 +5,8 @@ module Frayer
   module AWS
     module SimpleDB
       module PersistenceSupport
+        class Boolean; end
+
         module ClassMethods
           @@default_offset = 9223372036854775808
           @@default_padding = 20
@@ -39,6 +41,12 @@ module Frayer
           def has_dates(*args)
             args.each do |arg|
               attribute(arg, Time)
+            end
+          end
+
+          def has_booleans(*args)
+            args.each do |arg|
+              attribute(arg, Boolean)
             end
           end
         end
@@ -118,6 +126,8 @@ module Frayer
             yield lexical_int(variable, value)
           elsif value.is_a? Time
             yield DateUtil.convert_to_iso8601(value)
+          elsif value == true || value == false
+            yield value.to_s
           end
         end
 
@@ -128,6 +138,12 @@ module Frayer
             yield parsed_int(instance_attr_properties, unparsed_value)
           elsif type == Time
             yield DateTime.iso8601(unparsed_value).to_time
+          elsif type == Boolean
+            if unparsed_value == 'true'
+              yield true
+            else
+              yield false
+            end
           end
         end
 
