@@ -74,19 +74,37 @@ module Frayer
           load_date_created(item)
           load_date_updated(item)
 
-          eligible_attributes_to_load = item.attributes.collect(&:name) - ['name', 'date_created', 'date_updated']
+          eligible_attributes_to_load = retrieve_attribute_names(item)
           eligible_attributes_to_load.each do |attribute_name|
             instance_attr_symbol = "@#{attribute_name}".to_sym
             instance_attr_properties = self.class.attribute_properties[instance_attr_symbol]
             unless instance_attr_properties.nil?
               type = instance_attr_properties[:type]
-              with_parsed_value(type, instance_attr_properties, item.attributes[attribute_name].values.first) do |parsed_value|
+              unparsed_value = retrieve_attribute_value(item, attribute_name)
+              with_parsed_value(type, instance_attr_properties, unparsed_value) do |parsed_value|
                 instance_variable_set(instance_attr_symbol, parsed_value)
               end
             end
           end
         end
 
+        def retrieve_attribute_names(item)
+          excluded_attribute_names = ['name', 'date_created', 'date_updated']
+          if item.attributes.instance_of?(Hash)
+            item.attributes.keys - excluded_attribute_names
+          else
+            item.attributes.collect(&:name) - excluded_attribute_names
+          end
+        end
+
+        def retrieve_attribute_value(item, attribute_name)
+          attribute_values = item.attributes[attribute_name]
+          if attribute_values.instance_of?(Array)
+            attribute_values.first
+          else
+            attribute_values.values.first
+          end
+        end
 
         def assign_date_created
           unless instance_variable_defined?(:@date_created) && !@date_created.nil?
@@ -99,19 +117,24 @@ module Frayer
         end
 
         def load_date_created(item)
-          date_created_attribute = item.attributes['date_created']
-          load_date_attribute(:@date_created, date_created_attribute)
+          # date_created_attribute = item.attributes['date_created']
+          date_created_value = retrieve_attribute_value(item, 'date_created')
+          load_date_attribute(:@date_created, date_created_value)
         end
 
         def load_date_updated(item)
-          date_updated_attribute = item.attributes['date_updated']
-          load_date_attribute(:@date_updated, date_updated_attribute)
+          # date_updated_attribute = item.attributes['date_updated']
+          date_updated_value = retrieve_attribute_value(item, 'date_updated')
+          load_date_attribute(:@date_updated, date_updated_value)
         end
 
-        def load_date_attribute(instance_variable, date_attribute)
-          if date_attribute && date_attribute.values.count > 0
-            instance_variable_set(instance_variable, DateTime.iso8601(date_attribute.values.first).to_time)
+        def load_date_attribute(instance_variable, date_value)
+          if date_value
+            instance_variable_set(instance_variable, DateTime.iso8601(date_value).to_time)
           end
+          # if date_attribute && date_attribute.values.count > 0
+          #   instance_variable_set(instance_variable, DateTime.iso8601(date_attribute.values.first).to_time)
+          # end
         end
 
         def eligible_variables_to_persist

@@ -1,6 +1,7 @@
 $:.push(File.join(File.dirname(__FILE__),'..','..','lib'))
 require 'simple_db_persistence_support'
 require 'date'
+require 'aws-sdk'
 
 describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
 
@@ -69,75 +70,113 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       stub(name: 'bool_1', values: [ 'true' ]),
       stub(name: 'bool_2', values: [ 'false' ])
     ]
-    @mock_item = mock('mock_item')
-    @mock_item.stub(:name) { 'mock item name' }
-    @mock_item.stub(:attributes) { MockSimpleDBAttributeCollection.new(attributes) }
-  end
 
-  it "populates the name attribute from the item" do
-    @object.load_from_item(@mock_item)
-    @object.name.should eq('mock item name')
-  end
+    item_data_attributes = {}
+    attributes.each do |attribute|
+      item_data_attributes[attribute.name] = attribute.values
+    end
 
-  it "populates the date_created attribute frome the item" do
-    @object.load_from_item(@mock_item)
-    @object.date_created.should eq(@mock_created_time)
-  end
-
-  it "populates the date_updated attribute from the item" do
-    @object.load_from_item(@mock_item)
-    @object.date_updated.should eq(@mock_updated_time)
-  end
-
-  it "populates String attributes from the item" do
-    @object.load_from_item(@mock_item)
-    @object.str_value_1.should eq('String value 1 from item')
-    @object.str_value_2.should eq('String value 2 from item')
-    @object.str_value_3.should eq('String value 3 from item')
-  end
-
-  it "populates String attributes as Integer types when that metadata is present in the loading class" do
-    @object.load_from_item(@mock_item)
-    @object.int_value_1.should eq(2012)
-  end
-
-  it "doesn't populate fields from the item which are not declared in the class as attributes" do
-    @object.load_from_item(@mock_item)
-    @object.instance_variable_get(:@undeclared_value).should_not be
-  end
-
-  it "populates String attributes as Time types when that metadata is present in the loading class" do
-    @object.load_from_item(@mock_item)
-    @object.time_value_1.should eq(@mock_time_value_1)
-    @object.time_value_2.should eq(@mock_time_value_2)
-    @object.time_value_3.should eq(@mock_time_value_3)
-    @object.time_value_nil.should be_nil
-  end
-
-  it "assigns date_created and date_updated to nil when not present in the item" do
-    attributes = [
-      stub(name: 'date_created', values: []),
-      stub(name: 'date_updated', values: [])
-    ]
     @mock_item = mock('mock_item')
     @mock_item.stub(:name) { 'mock item name' }
     @mock_item.stub(:attributes) { MockSimpleDBAttributeCollection.new(attributes) }
 
-    @object.load_from_item(@mock_item)
-
-    @object.date_created.should be_nil
-    @object.date_updated.should be_nil
+    @mock_item_data = mock(AWS::SimpleDB::ItemData)
+    @mock_item_data.stub(:name) { 'mock ItemData name' }
+    @mock_item_data.stub(:attributes) { item_data_attributes }
   end
 
-  it "uses default offset and padding metadata for Integers to convert the persisted String type to a Ruby Integer" do
-    @object.load_from_item(@mock_item)
-    @object.int_value_4.should eq(-9223372036854775808)
-    @object.int_value_5.should eq(9223372036854775808)
+  describe "AWS::SimpleDB::Item loading behavior" do
+
+    it "populates the name attribute from the item" do
+      @object.load_from_item(@mock_item)
+      @object.name.should eq('mock item name')
+    end
+
+    it "populates the date_created attribute frome the item" do
+      @object.load_from_item(@mock_item)
+      @object.date_created.should eq(@mock_created_time)
+    end
+
+    it "populates the date_updated attribute from the item" do
+      @object.load_from_item(@mock_item)
+      @object.date_updated.should eq(@mock_updated_time)
+    end
+
+    it "populates String attributes from the item" do
+      @object.load_from_item(@mock_item)
+      @object.str_value_1.should eq('String value 1 from item')
+      @object.str_value_2.should eq('String value 2 from item')
+      @object.str_value_3.should eq('String value 3 from item')
+    end
+
+    it "populates String attributes as Integer types when that metadata is present in the loading class" do
+      @object.load_from_item(@mock_item)
+      @object.int_value_1.should eq(2012)
+    end
+
+    it "doesn't populate fields from the item which are not declared in the class as attributes" do
+      @object.load_from_item(@mock_item)
+      @object.instance_variable_get(:@undeclared_value).should_not be
+    end
+
+    it "populates String attributes as Time types when that metadata is present in the loading class" do
+      @object.load_from_item(@mock_item)
+      @object.time_value_1.should eq(@mock_time_value_1)
+      @object.time_value_2.should eq(@mock_time_value_2)
+      @object.time_value_3.should eq(@mock_time_value_3)
+      @object.time_value_nil.should be(nil)
+    end
+
+    it "assigns date_created and date_updated to nil when not present in the item" do
+      attributes = [
+        stub(name: 'date_created', values: []),
+        stub(name: 'date_updated', values: [])
+      ]
+      @mock_item = mock('mock_item')
+      @mock_item.stub(:name) { 'mock item name' }
+      @mock_item.stub(:attributes) { MockSimpleDBAttributeCollection.new(attributes) }
+
+      @object.load_from_item(@mock_item)
+
+      @object.date_created.should be(nil)
+      @object.date_updated.should be(nil)
+    end
+
+    it "uses default offset and padding metadata for Integers to convert the persisted String type to a Ruby Integer" do
+      @object.load_from_item(@mock_item)
+      @object.int_value_4.should eq(-9223372036854775808)
+      @object.int_value_5.should eq(9223372036854775808)
+    end
+
+    it "populates String attributes as Boolean types when that metadata is present in the loading class" do
+      @object.load_from_item(@mock_item)
+      @object.bool_1.should eq(true)
+      @object.bool_2.should eq(false)
+    end
+
   end
 
-  it "populates String attributes as Time types when that metadata is present in the loading class" do
-    @object.load_from_item(@mock_item)
-    @object.bool_1.should eq(true)
-    @object.bool_2.should eq(false)
+  describe "AWS::SimpleDB::ItemData loading behavior" do
+
+    it "does everything AWS::SimpleDB::Item does" do
+      @object.load_from_item(@mock_item_data)
+
+      @object.name.should eq('mock ItemData name')
+      @object.date_created.should eq(@mock_created_time)
+      @object.date_updated.should eq(@mock_updated_time)
+      @object.str_value_1.should eq('String value 1 from item')
+      @object.str_value_2.should eq('String value 2 from item')
+      @object.str_value_3.should eq('String value 3 from item')
+      @object.int_value_1.should eq(2012)
+      @object.time_value_1.should eq(@mock_time_value_1)
+      @object.time_value_2.should eq(@mock_time_value_2)
+      @object.time_value_3.should eq(@mock_time_value_3)
+      @object.time_value_nil.should be(nil)
+      @object.int_value_4.should eq(-9223372036854775808)
+      @object.int_value_5.should eq(9223372036854775808)
+      @object.bool_1.should eq(true)
+      @object.bool_2.should eq(false)
+    end
+
   end
 end
