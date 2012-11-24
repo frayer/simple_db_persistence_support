@@ -16,7 +16,8 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       attribute :int_value_2, Integer, { padding: 8 }
       attribute :int_value_3, Integer
       attribute :misc_time, Time
-      has_ints  :int_value_4, :int_value_5
+      has_strings :str_value_2, :str_value_3
+      has_ints    :int_value_4, :int_value_5
     end
 
     class MockSimpleDBAttributeCollection
@@ -48,7 +49,9 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
     attributes = [
       stub(name: 'date_created', values: [ '2012-11-05T16:07:29+00:00' ]),
       stub(name: 'date_updated', values: [ '2012-11-06T13:01:02+00:00' ]),
-      stub(name: 'str_value_1', values: [ 'String value from item' ]),
+      stub(name: 'str_value_1', values: [ 'String value 1 from item' ]),
+      stub(name: 'str_value_2', values: [ 'String value 2 from item' ]),
+      stub(name: 'str_value_3', values: [ 'String value 3 from item' ]),
       stub(name: 'int_value_1', values: [ '0000000000002012' ]),
       stub(name: 'int_value_4', values: [ '00000000000000000000' ]),
       stub(name: 'int_value_5', values: [ '18446744073709551616' ]),
@@ -77,7 +80,9 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
 
   it "populates String attributes from the item" do
     @object.load_from_item(@mock_item)
-    @object.str_value_1.should eq('String value from item')
+    @object.str_value_1.should eq('String value 1 from item')
+    @object.str_value_2.should eq('String value 2 from item')
+    @object.str_value_3.should eq('String value 3 from item')
   end
 
   it "populates String attributes as Integer types when that metadata is present in the loading class" do

@@ -24,6 +24,12 @@ module Frayer
             end
           end
 
+          def has_strings(*args)
+            args.each do |arg|
+              attribute(arg, String)
+            end
+          end
+
           def has_ints(*args)
             args.each do |arg|
               attribute(arg, Integer, { offset: @@default_offset, padding: @@default_padding })
