@@ -16,6 +16,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       attribute :int_value_2, Integer, { padding: 8 }
       attribute :int_value_3, Integer
       attribute :misc_time, Time
+      has_ints  :int_value_4, :int_value_5
     end
 
     class MockSimpleDBAttributeCollection
@@ -49,6 +50,8 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       stub(name: 'date_updated', values: [ '2012-11-06T13:01:02+00:00' ]),
       stub(name: 'str_value', values: [ 'String value from item' ]),
       stub(name: 'int_value_1', values: [ '0000000000002012' ]),
+      stub(name: 'int_value_4', values: [ '00000000000000000000' ]),
+      stub(name: 'int_value_5', values: [ '18446744073709551616' ]),
       stub(name: 'undeclared_value', values: [ "This shouldn't be assigned when loaded."]),
       stub(name: 'misc_time', values: [ '2012-11-13T05:31:56+00:00' ])
     ]
@@ -90,5 +93,11 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
   it "populates String attributes as Time types when that metadata is present in the loading class" do
     @object.load_from_item(@mock_item)
     @object.misc_time.should eq(@mock_misc_time)
+  end
+
+  it "uses default offset and padding metadata for Integers to convert the persisted String type to a Ruby Integer" do
+    @object.load_from_item(@mock_item)
+    @object.int_value_4.should eq(-9223372036854775808)
+    @object.int_value_5.should eq(9223372036854775808)
   end
 end

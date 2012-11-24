@@ -6,6 +6,8 @@ module Frayer
     module SimpleDB
       module PersistenceSupport
         module ClassMethods
+          @@default_offset = 9223372036854775808
+          @@default_padding = 20
           @@attribute_properties = {}
           def attribute_properties
             @@attribute_properties
@@ -19,6 +21,12 @@ module Frayer
 
             if args.length > 1
               @@attribute_properties[attr_symbol][:lexical_rules] = args[1]
+            end
+          end
+
+          def has_ints(*args)
+            args.each do |arg|
+              attribute(arg, Integer, { offset: @@default_offset, padding: @@default_padding })
             end
           end
         end
@@ -52,7 +60,7 @@ module Frayer
             instance_attr_properties = self.class.attribute_properties[instance_attr_symbol]
             unless instance_attr_properties.nil?
               type = instance_attr_properties[:type]
-              with_parsed_value(type, item.attributes[attribute_name].values.first) do |parsed_value|
+              with_parsed_value(type, instance_attr_properties, item.attributes[attribute_name].values.first) do |parsed_value|
                 instance_variable_set(instance_attr_symbol, parsed_value)
               end
             end
@@ -101,23 +109,34 @@ module Frayer
           end
         end
 
-        def with_parsed_value(type, unparsed_value)
+        def with_parsed_value(type, instance_attr_properties, unparsed_value)
           if type == String
             yield unparsed_value
           elsif type == Integer
-            yield unparsed_value.to_i
+            yield parsed_int(instance_attr_properties, unparsed_value)
           elsif type == Time
             yield DateTime.iso8601(unparsed_value).to_time
           end
         end
 
         def lexical_int(variable, int_value)
+          offset = 0
           padding = 10
           lexical_rules = self.class.attribute_properties[variable][:lexical_rules]
           if lexical_rules
-            padding = lexical_rules[:padding]
+            offset = lexical_rules[:offset] if lexical_rules[:offset]
+            padding = lexical_rules[:padding] if lexical_rules[:padding]
           end
-          int_value.to_s.rjust(padding, '0')
+          lexical_int = int_value + offset
+          lexical_int.to_s.rjust(padding, '0')
+        end
+
+        def parsed_int(instance_attr_properties, unparsed_value)
+          int_value = unparsed_value.to_i
+          if (instance_attr_properties[:lexical_rules] && instance_attr_properties[:lexical_rules][:offset])
+            int_value -= instance_attr_properties[:lexical_rules][:offset]
+          end
+          return int_value
         end
       end
     end

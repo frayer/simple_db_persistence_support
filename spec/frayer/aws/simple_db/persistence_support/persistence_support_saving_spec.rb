@@ -13,6 +13,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
       attribute :int_value_1, Integer, { padding: 16 }
       attribute :int_value_2, Integer, { padding: 8 }
       attribute :int_value_3, Integer
+      has_ints  :int_value_4, :int_value_5
     end
 
     @mock_dao = MockClass.new
@@ -141,6 +142,19 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
 
     domain.should_receive(:items) { items }
     items.should_receive(:create).with(@uuid_matcher, {int_value_1: '0000000000329000', int_value_2: '01309000', int_value_3: '0012345678', date_created: be, date_updated: be })
+
+    @mock_dao.save_to_simpledb(domain)
+  end
+
+  it "adds the default offset and padding to Integer values defined with has_ints when saving" do
+    @mock_dao.int_value_4 = -9223372036854775808
+    @mock_dao.int_value_5 = 9223372036854775808
+
+    domain = mock()
+    items = mock()
+
+    domain.should_receive(:items) { items }
+    items.should_receive(:create).with(@uuid_matcher, {int_value_4: '00000000000000000000', int_value_5: '18446744073709551616', date_created: be, date_updated: be })
 
     @mock_dao.save_to_simpledb(domain)
   end
