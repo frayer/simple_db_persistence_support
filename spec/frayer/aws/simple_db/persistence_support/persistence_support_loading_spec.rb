@@ -178,5 +178,18 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       @object.bool_2.should eq(false)
     end
 
+    it "assigns values to nil when they aren't available in the attribute hash" do
+      @mock_item_data = mock(AWS::SimpleDB::ItemData)
+      @mock_item_data.stub(:name) { 'mock ItemData name' }
+      @mock_item_data.stub(:attributes) { {} }
+
+      @object.load_from_item(@mock_item_data)
+
+      @object.name.should eq('mock ItemData name')
+      @object.date_created.should eq(nil)
+      @object.date_updated.should eq(nil)
+      @object.str_value_1.should eq(nil)
+    end
+
   end
 end

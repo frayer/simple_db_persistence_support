@@ -101,7 +101,7 @@ module Frayer
           attribute_values = item.attributes[attribute_name]
           if attribute_values.instance_of?(Array)
             attribute_values.first
-          else
+          elsif attribute_values.respond_to?(:values)
             attribute_values.values.first
           end
         end
