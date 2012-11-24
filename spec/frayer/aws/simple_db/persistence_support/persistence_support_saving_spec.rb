@@ -15,6 +15,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
       attribute :int_value_3, Integer
       has_strings :str_value_2, :str_value_3
       has_ints    :int_value_4, :int_value_5
+      has_dates   :date_1, :date_2
     end
 
     @mock_dao = MockClass.new
@@ -169,6 +170,23 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
 
     domain.should_receive(:items) { items }
     items.should_receive(:create).with(@uuid_matcher, {str_value_2: 'string value 2', str_value_3: 'string value 3', date_created: be, date_updated: be })
+
+    @mock_dao.save_to_simpledb(domain)
+  end
+
+  it "allows Time attributes defined with 'has_dates' to be persisted" do
+    time_1 = Time.new - 1000 * 60 * 60
+    time_2 = Time.new - 2000 * 60 * 60
+    expected_iso_8601_date_1 = time_1.utc.strftime('%FT%T%:z')
+    expected_iso_8601_date_2 = time_2.utc.strftime('%FT%T%:z')
+    @mock_dao.date_1 = time_1
+    @mock_dao.date_2 = time_2
+
+    domain = mock()
+    items = mock()
+
+    domain.should_receive(:items).and_return(items)
+    items.should_receive(:create).with(@uuid_matcher, {date_1: expected_iso_8601_date_1, date_2: expected_iso_8601_date_2, date_created: be, date_updated: be})
 
     @mock_dao.save_to_simpledb(domain)
   end

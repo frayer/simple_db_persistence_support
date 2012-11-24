@@ -35,6 +35,12 @@ module Frayer
               attribute(arg, Integer, { offset: @@default_offset, padding: @@default_padding })
             end
           end
+
+          def has_dates(*args)
+            args.each do |arg|
+              attribute(arg, Time)
+            end
+          end
         end
 
         def self.included(base)

@@ -15,9 +15,10 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       attribute :int_value_1, Integer, { padding: 16 }
       attribute :int_value_2, Integer, { padding: 8 }
       attribute :int_value_3, Integer
-      attribute :misc_time, Time
+      attribute :time_value_1, Time
       has_strings :str_value_2, :str_value_3
       has_ints    :int_value_4, :int_value_5
+      has_dates   :time_value_2, :time_value_3
     end
 
     class MockSimpleDBAttributeCollection
@@ -43,8 +44,12 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
     @mock_created_time = DateTime.iso8601(@mock_created_time_as_string).to_time
     @mock_updated_time_as_string = '2012-11-06T13:01:02+00:00'
     @mock_updated_time = DateTime.iso8601(@mock_updated_time_as_string).to_time
-    @mock_misc_time_as_string = '2012-11-13T05:31:56+00:00'
-    @mock_misc_time = DateTime.iso8601(@mock_misc_time_as_string).to_time
+    @mock_time_value_1_as_string = '2012-11-13T05:31:56+00:00'
+    @mock_time_value_1 = DateTime.iso8601(@mock_time_value_1_as_string).to_time
+    @mock_time_value_2_as_string = '2012-11-14T06:31:56+00:00'
+    @mock_time_value_2 = DateTime.iso8601(@mock_time_value_2_as_string).to_time
+    @mock_time_value_3_as_string = '2012-11-15T07:31:56+00:00'
+    @mock_time_value_3 = DateTime.iso8601(@mock_time_value_3_as_string).to_time
 
     attributes = [
       stub(name: 'date_created', values: [ '2012-11-05T16:07:29+00:00' ]),
@@ -56,7 +61,9 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       stub(name: 'int_value_4', values: [ '00000000000000000000' ]),
       stub(name: 'int_value_5', values: [ '18446744073709551616' ]),
       stub(name: 'undeclared_value', values: [ "This shouldn't be assigned when loaded."]),
-      stub(name: 'misc_time', values: [ '2012-11-13T05:31:56+00:00' ])
+      stub(name: 'time_value_1', values: [ '2012-11-13T05:31:56+00:00' ]),
+      stub(name: 'time_value_2', values: [ '2012-11-14T06:31:56+00:00' ]),
+      stub(name: 'time_value_3', values: [ '2012-11-15T07:31:56+00:00' ])
     ]
     @mock_item = mock('mock_item')
     @mock_item.stub(:name) { 'mock item name' }
@@ -97,7 +104,9 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
 
   it "populates String attributes as Time types when that metadata is present in the loading class" do
     @object.load_from_item(@mock_item)
-    @object.misc_time.should eq(@mock_misc_time)
+    @object.time_value_1.should eq(@mock_time_value_1)
+    @object.time_value_2.should eq(@mock_time_value_2)
+    @object.time_value_3.should eq(@mock_time_value_3)
   end
 
   it "uses default offset and padding metadata for Integers to convert the persisted String type to a Ruby Integer" do
