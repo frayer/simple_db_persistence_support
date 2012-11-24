@@ -9,7 +9,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
       attribute :name
       attribute :date_created, Time
       attribute :date_updated, Time
-      attribute :str_value
+      attribute :str_value_1
       attribute :int_value_1, Integer, { padding: 16 }
       attribute :int_value_2, Integer, { padding: 8 }
       attribute :int_value_3, Integer
@@ -25,7 +25,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
 
   it "populates the 'name' of the Item with a GUID if not already assigned" do
     @mock_dao.name = nil
-    @mock_dao.str_value = 'string value'
+    @mock_dao.str_value_1 = 'string value'
 
     domain = mock()
     items = mock()
@@ -40,13 +40,13 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
 
   it "creates a new Item if the 'name' is not already assigned" do
     @mock_dao.name = nil
-    @mock_dao.str_value = 'string value'
+    @mock_dao.str_value_1 = 'string value'
 
     domain = mock()
     items = mock()
 
     domain.should_receive(:items) { items }
-    items.should_receive(:create).with(@uuid_matcher, {str_value: 'string value', date_created: be, date_updated: be })
+    items.should_receive(:create).with(@uuid_matcher, {str_value_1: 'string value', date_created: be, date_updated: be })
 
     @mock_dao.save_to_simpledb(domain)
   end
@@ -108,13 +108,13 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
 
   it "updates the Item using its existing 'name' if already assigned" do
     @mock_dao.name = '12345'
-    @mock_dao.str_value = 'string value'
+    @mock_dao.str_value_1 = 'string value'
 
     domain = mock()
     items = mock()
 
     domain.should_receive(:items) { items }
-    items.should_receive(:create).with('12345', {str_value: 'string value', date_created: be, date_updated: be })
+    items.should_receive(:create).with('12345', {str_value_1: 'string value', date_created: be, date_updated: be })
 
     @mock_dao.save_to_simpledb(domain)
   end

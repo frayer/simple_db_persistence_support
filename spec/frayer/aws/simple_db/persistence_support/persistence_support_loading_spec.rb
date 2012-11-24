@@ -11,7 +11,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       attribute :name
       attribute :date_created, Time
       attribute :date_updated, Time
-      attribute :str_value
+      attribute :str_value_1
       attribute :int_value_1, Integer, { padding: 16 }
       attribute :int_value_2, Integer, { padding: 8 }
       attribute :int_value_3, Integer
@@ -48,7 +48,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
     attributes = [
       stub(name: 'date_created', values: [ '2012-11-05T16:07:29+00:00' ]),
       stub(name: 'date_updated', values: [ '2012-11-06T13:01:02+00:00' ]),
-      stub(name: 'str_value', values: [ 'String value from item' ]),
+      stub(name: 'str_value_1', values: [ 'String value from item' ]),
       stub(name: 'int_value_1', values: [ '0000000000002012' ]),
       stub(name: 'int_value_4', values: [ '00000000000000000000' ]),
       stub(name: 'int_value_5', values: [ '18446744073709551616' ]),
@@ -77,7 +77,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
 
   it "populates String attributes from the item" do
     @object.load_from_item(@mock_item)
-    @object.str_value.should eq('String value from item')
+    @object.str_value_1.should eq('String value from item')
   end
 
   it "populates String attributes as Integer types when that metadata is present in the loading class" do
