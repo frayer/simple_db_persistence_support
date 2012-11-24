@@ -109,7 +109,7 @@ module Frayer
         end
 
         def load_date_attribute(instance_variable, date_attribute)
-          if date_attribute
+          if date_attribute && date_attribute.values.count > 0
             instance_variable_set(instance_variable, DateTime.iso8601(date_attribute.values.first).to_time)
           end
         end
@@ -132,7 +132,9 @@ module Frayer
         end
 
         def with_parsed_value(type, instance_attr_properties, unparsed_value)
-          if type == String
+          if unparsed_value.nil?
+            yield nil
+          elsif type == String
             yield unparsed_value
           elsif type == Integer
             yield parsed_int(instance_attr_properties, unparsed_value)

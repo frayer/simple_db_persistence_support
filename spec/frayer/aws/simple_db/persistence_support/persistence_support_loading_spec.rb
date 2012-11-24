@@ -18,7 +18,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       attribute :time_value_1, Time
       has_strings  :str_value_2, :str_value_3
       has_ints     :int_value_4, :int_value_5
-      has_dates    :time_value_2, :time_value_3
+      has_dates    :time_value_2, :time_value_3, :time_value_nil
       has_booleans :bool_1, :bool_2
     end
 
@@ -65,6 +65,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       stub(name: 'time_value_1', values: [ '2012-11-13T05:31:56+00:00' ]),
       stub(name: 'time_value_2', values: [ '2012-11-14T06:31:56+00:00' ]),
       stub(name: 'time_value_3', values: [ '2012-11-15T07:31:56+00:00' ]),
+      stub(name: 'time_value_nil', values: []),
       stub(name: 'bool_1', values: [ 'true' ]),
       stub(name: 'bool_2', values: [ 'false' ])
     ]
@@ -110,6 +111,22 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
     @object.time_value_1.should eq(@mock_time_value_1)
     @object.time_value_2.should eq(@mock_time_value_2)
     @object.time_value_3.should eq(@mock_time_value_3)
+    @object.time_value_nil.should be_nil
+  end
+
+  it "assigns date_created and date_updated to nil when not present in the item" do
+    attributes = [
+      stub(name: 'date_created', values: []),
+      stub(name: 'date_updated', values: [])
+    ]
+    @mock_item = mock('mock_item')
+    @mock_item.stub(:name) { 'mock item name' }
+    @mock_item.stub(:attributes) { MockSimpleDBAttributeCollection.new(attributes) }
+
+    @object.load_from_item(@mock_item)
+
+    @object.date_created.should be_nil
+    @object.date_updated.should be_nil
   end
 
   it "uses default offset and padding metadata for Integers to convert the persisted String type to a Ruby Integer" do
