@@ -10,8 +10,8 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       include Frayer::AWS::SimpleDB::PersistenceSupport
 
       attribute :name
-      attribute :date_created, Time
-      attribute :date_updated, Time
+      attribute :created, Time
+      attribute :updated, Time
       attribute :str_value_1
       attribute :int_value_1, Integer, { padding: 16 }
       attribute :int_value_2, Integer, { padding: 8 }
@@ -54,8 +54,8 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
     @mock_time_value_3 = DateTime.iso8601(@mock_time_value_3_as_string).to_time
 
     attributes = [
-      stub(name: 'date_created', values: [ '2012-11-05T16:07:29+00:00' ]),
-      stub(name: 'date_updated', values: [ '2012-11-06T13:01:02+00:00' ]),
+      stub(name: 'created', values: [ '2012-11-05T16:07:29+00:00' ]),
+      stub(name: 'updated', values: [ '2012-11-06T13:01:02+00:00' ]),
       stub(name: 'str_value_1', values: [ 'String value 1 from item' ]),
       stub(name: 'str_value_2', values: [ 'String value 2 from item' ]),
       stub(name: 'str_value_3', values: [ 'String value 3 from item' ]),
@@ -92,14 +92,14 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       @object.name.should eq('mock item name')
     end
 
-    it "populates the date_created attribute frome the item" do
+    it "populates the created attribute frome the item" do
       @object.load_from_item(@mock_item)
-      @object.date_created.should eq(@mock_created_time)
+      @object.created.should eq(@mock_created_time)
     end
 
-    it "populates the date_updated attribute from the item" do
+    it "populates the updated attribute from the item" do
       @object.load_from_item(@mock_item)
-      @object.date_updated.should eq(@mock_updated_time)
+      @object.updated.should eq(@mock_updated_time)
     end
 
     it "populates String attributes from the item" do
@@ -127,10 +127,10 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       @object.time_value_nil.should be(nil)
     end
 
-    it "assigns date_created and date_updated to nil when not present in the item" do
+    it "assigns created and updated to nil when not present in the item" do
       attributes = [
-        stub(name: 'date_created', values: []),
-        stub(name: 'date_updated', values: [])
+        stub(name: 'created', values: []),
+        stub(name: 'updated', values: [])
       ]
       @mock_item = mock('mock_item')
       @mock_item.stub(:name) { 'mock item name' }
@@ -138,8 +138,8 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
 
       @object.load_from_item(@mock_item)
 
-      @object.date_created.should be(nil)
-      @object.date_updated.should be(nil)
+      @object.created.should be(nil)
+      @object.updated.should be(nil)
     end
 
     it "uses default offset and padding metadata for Integers to convert the persisted String type to a Ruby Integer" do
@@ -162,8 +162,8 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       @object.load_from_item(@mock_item_data)
 
       @object.name.should eq('mock ItemData name')
-      @object.date_created.should eq(@mock_created_time)
-      @object.date_updated.should eq(@mock_updated_time)
+      @object.created.should eq(@mock_created_time)
+      @object.updated.should eq(@mock_updated_time)
       @object.str_value_1.should eq('String value 1 from item')
       @object.str_value_2.should eq('String value 2 from item')
       @object.str_value_3.should eq('String value 3 from item')
@@ -186,8 +186,8 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       @object.load_from_item(@mock_item_data)
 
       @object.name.should eq('mock ItemData name')
-      @object.date_created.should eq(nil)
-      @object.date_updated.should eq(nil)
+      @object.created.should eq(nil)
+      @object.updated.should eq(nil)
       @object.str_value_1.should eq(nil)
     end
 

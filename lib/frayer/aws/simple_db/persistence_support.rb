@@ -89,7 +89,7 @@ module Frayer
         end
 
         def retrieve_attribute_names(item)
-          excluded_attribute_names = ['name', 'date_created', 'date_updated']
+          excluded_attribute_names = ['name', 'created', 'updated']
           if item.attributes.instance_of?(Hash)
             item.attributes.keys - excluded_attribute_names
           else
@@ -107,34 +107,29 @@ module Frayer
         end
 
         def assign_date_created
-          unless instance_variable_defined?(:@date_created) && !@date_created.nil?
-            @date_created = Time.now
+          unless instance_variable_defined?(:@created) && !@created.nil?
+            @created = Time.now
           end
         end
 
         def assign_date_updated
-          @date_updated = Time.now
+          @updated = Time.now
         end
 
         def load_date_created(item)
-          # date_created_attribute = item.attributes['date_created']
-          date_created_value = retrieve_attribute_value(item, 'date_created')
-          load_date_attribute(:@date_created, date_created_value)
+          date_created_value = retrieve_attribute_value(item, 'created')
+          load_date_attribute(:@created, date_created_value)
         end
 
         def load_date_updated(item)
-          # date_updated_attribute = item.attributes['date_updated']
-          date_updated_value = retrieve_attribute_value(item, 'date_updated')
-          load_date_attribute(:@date_updated, date_updated_value)
+          date_updated_value = retrieve_attribute_value(item, 'updated')
+          load_date_attribute(:@updated, date_updated_value)
         end
 
         def load_date_attribute(instance_variable, date_value)
           if date_value
             instance_variable_set(instance_variable, DateTime.iso8601(date_value).to_time)
           end
-          # if date_attribute && date_attribute.values.count > 0
-          #   instance_variable_set(instance_variable, DateTime.iso8601(date_attribute.values.first).to_time)
-          # end
         end
 
         def eligible_variables_to_persist

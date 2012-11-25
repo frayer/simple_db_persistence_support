@@ -7,8 +7,8 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
       include Frayer::AWS::SimpleDB::PersistenceSupport
 
       attribute :name
-      attribute :date_created, Time
-      attribute :date_updated, Time
+      attribute :created, Time
+      attribute :updated, Time
       attribute :str_value_1
       attribute :int_value_1, Integer, { padding: 16 }
       attribute :int_value_2, Integer, { padding: 8 }
@@ -49,61 +49,61 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
     items = mock()
 
     domain.should_receive(:items) { items }
-    items.should_receive(:create).with(@uuid_matcher, {str_value_1: 'string value', date_created: be, date_updated: be })
+    items.should_receive(:create).with(@uuid_matcher, {str_value_1: 'string value', created: be, updated: be })
 
     @mock_dao.save_to_simpledb(domain)
   end
 
-  it "sets date_created and date_updated in ISO-8601 format if it is not currently assigned" do
+  it "sets created and updated in ISO-8601 format if it is not currently assigned" do
     domain = mock()
     items = mock()
 
     domain.should_receive(:items).and_return(items)
-    items.should_receive(:create).with(@uuid_matcher, {date_created: @formatted_date_matcher, date_updated: @formatted_date_matcher})
+    items.should_receive(:create).with(@uuid_matcher, {created: @formatted_date_matcher, updated: @formatted_date_matcher})
 
     @mock_dao.save_to_simpledb(domain)
   end
 
-  it "sets date_created and date_updated in ISO-8601 format if it is assigned to nil" do
-    @mock_dao.date_created = nil
-    @mock_dao.date_updated = nil
+  it "sets created and updated in ISO-8601 format if it is assigned to nil" do
+    @mock_dao.created = nil
+    @mock_dao.updated = nil
     
     domain = mock()
     items = mock()
 
     domain.should_receive(:items).and_return(items)
-    items.should_receive(:create).with(@uuid_matcher, {date_created: @formatted_date_matcher, date_updated: @formatted_date_matcher})
+    items.should_receive(:create).with(@uuid_matcher, {created: @formatted_date_matcher, updated: @formatted_date_matcher})
 
     @mock_dao.save_to_simpledb(domain)
   end
 
-  it "does not change the value of date_created if it was already assigned" do
+  it "does not change the value of created if it was already assigned" do
     time = Time.new - 1000 * 60 * 60
     expected_iso_8601_date = time.utc.strftime('%FT%T%:z')
-    @mock_dao.date_created = time
+    @mock_dao.created = time
 
     domain = mock()
     items = mock()
 
     domain.should_receive(:items).and_return(items)
-    items.should_receive(:create).with(@uuid_matcher, {date_created: expected_iso_8601_date, date_updated: @formatted_date_matcher})
+    items.should_receive(:create).with(@uuid_matcher, {created: expected_iso_8601_date, updated: @formatted_date_matcher})
 
     @mock_dao.save_to_simpledb(domain)
   end
 
-  it "changes the value of date_updated if it was already assigned" do
+  it "changes the value of updated if it was already assigned" do
     time = Time.new - 1000 * 60 * 60
     expected_iso_8601_date = time.utc.strftime('%FT%T%:z')
-    @mock_dao.date_created = time
-    @mock_dao.date_updated = time
+    @mock_dao.created = time
+    @mock_dao.updated = time
 
     domain = mock()
     items = mock()
 
     domain.should_receive(:items).and_return(items)
     items.should_receive(:create) do |name, attributes|
-      attributes[:date_updated].should_not be(expected_iso_8601_date)
-      attributes[:date_updated].should match(@iso8601_expression)
+      attributes[:updated].should_not be(expected_iso_8601_date)
+      attributes[:updated].should match(@iso8601_expression)
     end
 
     @mock_dao.save_to_simpledb(domain)
@@ -117,7 +117,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
     items = mock()
 
     domain.should_receive(:items) { items }
-    items.should_receive(:create).with('12345', {str_value_1: 'string value', date_created: be, date_updated: be })
+    items.should_receive(:create).with('12345', {str_value_1: 'string value', created: be, updated: be })
 
     @mock_dao.save_to_simpledb(domain)
   end
@@ -130,7 +130,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
     items = mock()
 
     domain.should_receive(:items) { items }
-    items.should_receive(:create).with(@uuid_matcher, {int_value_1: '0000000000329000', int_value_2: '01309000', date_created: be, date_updated: be })
+    items.should_receive(:create).with(@uuid_matcher, {int_value_1: '0000000000329000', int_value_2: '01309000', created: be, updated: be })
 
     @mock_dao.save_to_simpledb(domain)
   end
@@ -144,7 +144,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
     items = mock()
 
     domain.should_receive(:items) { items }
-    items.should_receive(:create).with(@uuid_matcher, {int_value_1: '0000000000329000', int_value_2: '01309000', int_value_3: '0012345678', date_created: be, date_updated: be })
+    items.should_receive(:create).with(@uuid_matcher, {int_value_1: '0000000000329000', int_value_2: '01309000', int_value_3: '0012345678', created: be, updated: be })
 
     @mock_dao.save_to_simpledb(domain)
   end
@@ -157,7 +157,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
     items = mock()
 
     domain.should_receive(:items) { items }
-    items.should_receive(:create).with(@uuid_matcher, {int_value_4: '00000000000000000000', int_value_5: '18446744073709551616', date_created: be, date_updated: be })
+    items.should_receive(:create).with(@uuid_matcher, {int_value_4: '00000000000000000000', int_value_5: '18446744073709551616', created: be, updated: be })
 
     @mock_dao.save_to_simpledb(domain)
   end
@@ -170,7 +170,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
     items = mock()
 
     domain.should_receive(:items) { items }
-    items.should_receive(:create).with(@uuid_matcher, {str_value_2: 'string value 2', str_value_3: 'string value 3', date_created: be, date_updated: be })
+    items.should_receive(:create).with(@uuid_matcher, {str_value_2: 'string value 2', str_value_3: 'string value 3', created: be, updated: be })
 
     @mock_dao.save_to_simpledb(domain)
   end
@@ -187,7 +187,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
     items = mock()
 
     domain.should_receive(:items).and_return(items)
-    items.should_receive(:create).with(@uuid_matcher, {date_1: expected_iso_8601_date_1, date_2: expected_iso_8601_date_2, date_created: be, date_updated: be})
+    items.should_receive(:create).with(@uuid_matcher, {date_1: expected_iso_8601_date_1, date_2: expected_iso_8601_date_2, created: be, updated: be})
 
     @mock_dao.save_to_simpledb(domain)
   end
@@ -200,7 +200,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
     items = mock()
 
     domain.should_receive(:items) { items }
-    items.should_receive(:create).with(@uuid_matcher, { bool_1: 'true', bool_2: 'false' , date_created: be, date_updated: be })
+    items.should_receive(:create).with(@uuid_matcher, { bool_1: 'true', bool_2: 'false' , created: be, updated: be })
 
     @mock_dao.save_to_simpledb(domain)
   end
