@@ -1,4 +1,3 @@
-$:.push(File.join(File.dirname(__FILE__),'..','..','lib'))
 require 'simple_db_persistence_support'
 require 'date'
 require 'aws-sdk'

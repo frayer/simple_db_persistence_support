@@ -49,6 +49,22 @@ module Frayer
               attribute(arg, Boolean)
             end
           end
+
+          def lexical_int(variable, int_value)
+            offset = 0
+            padding = 10
+            lexical_rules = @@attribute_properties[variable][:lexical_rules]
+            if lexical_rules
+              offset = lexical_rules[:offset] if lexical_rules[:offset]
+              padding = lexical_rules[:padding] if lexical_rules[:padding]
+            end
+            lexical_int = int_value + offset
+            lexical_int.to_s.rjust(padding, '0')
+          end
+
+          def lexical_date(date)
+            DateUtil.convert_to_iso8601(date)
+          end
         end
 
         def self.included(base)
@@ -141,9 +157,9 @@ module Frayer
           if value.is_a? String
             yield value
           elsif value.is_a? Integer
-            yield lexical_int(variable, value)
+            yield self.class.lexical_int(variable, value)
           elsif value.is_a? Time
-            yield DateUtil.convert_to_iso8601(value)
+            yield self.class.lexical_date(value)
           elsif value == true || value == false
             yield value.to_s
           end
@@ -165,18 +181,6 @@ module Frayer
               yield false
             end
           end
-        end
-
-        def lexical_int(variable, int_value)
-          offset = 0
-          padding = 10
-          lexical_rules = self.class.attribute_properties[variable][:lexical_rules]
-          if lexical_rules
-            offset = lexical_rules[:offset] if lexical_rules[:offset]
-            padding = lexical_rules[:padding] if lexical_rules[:padding]
-          end
-          lexical_int = int_value + offset
-          lexical_int.to_s.rjust(padding, '0')
         end
 
         def parsed_int(instance_attr_properties, unparsed_value)
