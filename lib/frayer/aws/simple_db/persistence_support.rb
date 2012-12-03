@@ -38,6 +38,12 @@ module Frayer
             end
           end
 
+          def has_floats(*args)
+            args.each do |arg|
+              attribute(arg, Float)
+            end
+          end
+
           def has_dates(*args)
             args.each do |arg|
               attribute(arg, Time)
@@ -201,6 +207,8 @@ module Frayer
             yield unparsed_value
           elsif type == Integer
             yield parsed_int(instance_attr_properties, unparsed_value)
+          elsif type == Float
+            yield unparsed_value.to_f
           elsif type == Time
             yield DateTime.iso8601(unparsed_value).to_time
           elsif type == Boolean

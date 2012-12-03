@@ -8,16 +8,17 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
     class MockDomainClass
       include Frayer::AWS::SimpleDB::PersistenceSupport
 
-      attribute :name
-      attribute :created, Time
-      attribute :updated, Time
-      attribute :str_value_1
-      attribute :int_value_1, Integer, { padding: 16 }
-      attribute :int_value_2, Integer, { padding: 8 }
-      attribute :int_value_3, Integer
-      attribute :time_value_1, Time
+      attribute    :name
+      attribute    :created, Time
+      attribute    :updated, Time
+      attribute    :str_value_1
+      attribute    :int_value_1, Integer, { padding: 16 }
+      attribute    :int_value_2, Integer, { padding: 8 }
+      attribute    :int_value_3, Integer
+      attribute    :time_value_1, Time
       has_strings  :str_value_2, :str_value_3
       has_ints     :int_value_4, :int_value_5
+      has_floats   :float_value_1, :float_value_2
       has_dates    :time_value_2, :time_value_3, :time_value_nil
       has_booleans :bool_1, :bool_2
     end
@@ -61,6 +62,8 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       stub(name: 'int_value_1', values: [ '0000000000002012' ]),
       stub(name: 'int_value_4', values: [ '00000000000000000000' ]),
       stub(name: 'int_value_5', values: [ '18446744073709551616' ]),
+      stub(name: 'float_value_1', values: [ '123.456789' ]),
+      stub(name: 'float_value_2', values: [ '987654.321' ]),
       stub(name: 'undeclared_value', values: [ "This shouldn't be assigned when loaded."]),
       stub(name: 'time_value_1', values: [ '2012-11-13T05:31:56+00:00' ]),
       stub(name: 'time_value_2', values: [ '2012-11-14T06:31:56+00:00' ]),
@@ -173,6 +176,8 @@ describe "Amazon AWS SimpleDB PersistenceSupport loading behavior" do
       @object.time_value_nil.should be(nil)
       @object.int_value_4.should eq(-9223372036854775808)
       @object.int_value_5.should eq(9223372036854775808)
+      @object.float_value_1.should eq(123.456789)
+      @object.float_value_2.should eq(987654.321)
       @object.bool_1.should eq(true)
       @object.bool_2.should eq(false)
     end
