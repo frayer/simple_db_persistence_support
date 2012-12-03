@@ -65,6 +65,35 @@ module Frayer
           def lexical_date(date)
             DateUtil.convert_to_iso8601(date)
           end
+
+          def all(domain)
+            self.select(domain, :all)
+          end
+
+          def select(domain, *attributes)
+            properties = []
+            domain.items.select(*attributes) do |item|
+              properties << property_from_item(item)
+            end
+            properties
+          end
+
+          def where(domain, conditions, *substitutions)
+            properties = []
+            domain.items.where(conditions, *substitutions).select(:all) do |item|
+              properties << property_from_item(item)
+            end
+            properties
+          end
+
+          def property_from_item(item)
+            property = nil
+            self.class_exec do
+              property = new
+              property.load_from_item(item)
+            end
+            property
+          end
         end
 
         def self.included(base)
