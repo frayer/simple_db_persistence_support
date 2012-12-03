@@ -14,6 +14,7 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
       attribute :int_value_3, Integer
       has_strings  :str_value_2, :str_value_3
       has_ints     :int_value_4, :int_value_5
+      has_floats   :float_value_1, :float_value_2
       has_dates    :date_1, :date_2
       has_booleans :bool_1, :bool_2
     end
@@ -157,6 +158,19 @@ describe "Amazon AWS SimpleDB PersistenceSupport saving behavior" do
 
     domain.should_receive(:items) { items }
     items.should_receive(:create).with(@uuid_matcher, {int_value_4: '00000000000000000000', int_value_5: '18446744073709551616', created: be, updated: be })
+
+    @mock_dao.save_to_simpledb(domain)
+  end
+
+  it "allows Float attributes defined with 'has_floats' to be persisted" do
+    @mock_dao.float_value_1 = 123.456789
+    @mock_dao.float_value_2 = 987654.321
+
+    domain = mock()
+    items = mock()
+
+    domain.should_receive(:items) { items }
+    items.should_receive(:create).with(@uuid_matcher, {float_value_1: '123.456789', float_value_2: '987654.321', created: be, updated: be })
 
     @mock_dao.save_to_simpledb(domain)
   end

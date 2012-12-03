@@ -193,6 +193,8 @@ module Frayer
             yield value
           elsif value.is_a? Integer
             yield self.class.lexical_int(variable, value)
+          elsif value.is_a? Float
+            yield value.to_s
           elsif value.is_a? Time
             yield self.class.lexical_date(value)
           elsif value == true || value == false
