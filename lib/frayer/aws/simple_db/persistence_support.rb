@@ -139,6 +139,15 @@ module Frayer
           end
         end
 
+        def to_h
+          hash = {}
+          instance_variables.each do |var_name|
+            var_symbol = var_name[1..-1].to_sym # Gets rid of the "@" on the front of the var_name
+            hash[var_symbol] = instance_variable_get(var_name)
+          end
+          hash
+        end
+
         def retrieve_attribute_names(item)
           excluded_attribute_names = ['name', 'created', 'updated']
           if item.attributes.instance_of?(Hash)
