@@ -140,12 +140,7 @@ module Frayer
         end
 
         def to_h
-          hash = {}
-          instance_variables.each do |var_name|
-            var_symbol = var_name[1..-1].to_sym # Gets rid of the "@" on the front of the var_name
-            hash[var_symbol] = instance_variable_get(var_name)
-          end
-          hash
+          Hash[instance_variables.map { |var| [var[1..-1].to_sym, instance_variable_get(var) ] }]
         end
 
         def retrieve_attribute_names(item)
